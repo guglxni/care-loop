@@ -1,0 +1,70 @@
+[
+  {
+    "_id": "demo-entry-mgdl",
+    "type": "sgv",
+    "sgv": 142,
+    "dateString": "2026-11-14T08:00:00.000Z",
+    "date": 1794643200000,
+    "device": "careloop-demo-nightscout",
+    "direction": "Flat",
+    "units": "mg/dl",
+    "delta": 0
+  },
+  {
+    "_id": "demo-entry-mmol",
+    "type": "sgv",
+    "sgv": 7.4,
+    "dateString": "2026-11-14T08:05:00.000Z",
+    "date": 1794643500000,
+    "device": "careloop-demo-nightscout",
+    "direction": "FortyFiveUp",
+    "units": "mmol"
+  },
+  {
+    "_id": "demo-entry-epoch",
+    "type": "sgv",
+    "sgv": 155,
+    "date": 1794644400000,
+    "device": "careloop-demo-nightscout",
+    "direction": "SingleUp"
+  },
+  {
+    "_id": "demo-entry-missing-sgv",
+    "type": "sgv",
+    "dateString": "2026-11-14T08:10:00.000Z",
+    "date": 1794643800000,
+    "device": "careloop-demo-nightscout",
+    "direction": "Flat"
+  },
+  {
+    "_id": "demo-entry-missing-time",
+    "type": "sgv",
+    "sgv": 118,
+    "device": "careloop-demo-nightscout",
+    "direction": "Flat"
+  },
+  {
+    "_id": "demo-entry-mbg",
+    "type": "mbg",
+    "sgv": 99,
+    "dateString": "2026-11-14T08:30:00.000Z",
+    "date": 1794645000000,
+    "device": "careloop-demo-meter"
+  },
+  {
+    "_id": "demo-entry-naive-time",
+    "type": "sgv",
+    "sgv": 166,
+    "dateString": "2026-11-14T08:40:00",
+    "device": "careloop-demo-nightscout"
+  },
+  {
+    "_id": "demo-entry-bad-unit",
+    "type": "sgv",
+    "sgv": 144,
+    "dateString": "2026-11-14T08:50:00.000Z",
+    "date": 1794646200000,
+    "device": "careloop-demo-nightscout",
+    "units": "banana"
+  }
+]

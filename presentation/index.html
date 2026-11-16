@@ -1,0 +1,514 @@
+<!doctype html>
+<html lang="en" data-resolution="landscape">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=1920, height=1080" />
+    <title>Care Loop</title>
+    <script src="https://cdn.jsdelivr.net/npm/gsap@3.15.0/dist/gsap.min.js"></script>
+    <style>
+      @font-face {
+        font-family: "Source Sans 3";
+        src: url("assets/fonts/source-sans-400.woff2") format("woff2");
+        font-weight: 400;
+        font-style: normal;
+      }
+      @font-face {
+        font-family: "Source Sans 3";
+        src: url("assets/fonts/source-sans-600.woff2") format("woff2");
+        font-weight: 600;
+        font-style: normal;
+      }
+      @font-face {
+        font-family: "Source Serif 4";
+        src: url("assets/fonts/source-serif-600.woff2") format("woff2");
+        font-weight: 600;
+        font-style: normal;
+      }
+      :root {
+        --canvas: #f6f3ec;
+        --ink: #241f1a;
+        --sage: #1e6b44;
+        --sage-strong: #165536;
+        --sage-soft: #e5f2ea;
+        --calm: #2a5f86;
+        --calm-soft: #e6f0f6;
+        --line: #e7e1d6;
+        --card: #fffdf9;
+        --muted: #5e584f;
+        --amber: #8a5710;
+        --amber-soft: #f8f0e2;
+        --shadow: 0 1px 1px rgb(36 31 26 / 0.04), 0 10px 28px rgb(36 31 26 / 0.05);
+      }
+      * { box-sizing: border-box; }
+      html, body {
+        margin: 0;
+        width: 1920px;
+        height: 1080px;
+        overflow: hidden;
+        background: var(--canvas);
+        color: var(--ink);
+        font-family: "Source Sans 3", system-ui, sans-serif;
+        font-variant-numeric: tabular-nums;
+      }
+      #stage {
+        position: relative;
+        width: 1920px;
+        height: 1080px;
+        overflow: hidden;
+        background: var(--canvas);
+      }
+      .scene-frame {
+        position: absolute;
+        inset: 0;
+        overflow: hidden;
+        opacity: 0;
+        visibility: hidden;
+        pointer-events: none;
+        background: var(--canvas);
+      }
+      .pad {
+        height: 100%;
+        padding: 56px 72px 48px;
+        display: flex;
+        flex-direction: column;
+        gap: 28px;
+      }
+      .top {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        min-height: 44px;
+      }
+      .brand {
+        display: flex;
+        align-items: center;
+        gap: 14px;
+        font-family: "Source Serif 4", Georgia, serif;
+        font-size: 32px;
+        font-weight: 600;
+        letter-spacing: -0.02em;
+      }
+      .mark {
+        width: 44px;
+        height: 44px;
+        border-radius: 12px;
+        background: var(--sage);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+      }
+      .step {
+        font-size: 28px;
+        color: var(--muted);
+        font-variant-numeric: tabular-nums;
+      }
+      h1 {
+        margin: 0;
+        font-family: "Source Serif 4", Georgia, serif;
+        font-size: 84px;
+        font-weight: 600;
+        letter-spacing: -0.03em;
+        line-height: 0.98;
+      }
+      h2 {
+        margin: 0;
+        font-family: "Source Serif 4", Georgia, serif;
+        font-size: 64px;
+        font-weight: 600;
+        letter-spacing: -0.03em;
+        line-height: 1;
+      }
+      .lede {
+        margin: 0;
+        max-width: 1100px;
+        font-size: 40px;
+        line-height: 1.25;
+        color: var(--muted);
+      }
+      .fine {
+        margin-top: auto;
+        font-size: 28px;
+        color: var(--muted);
+      }
+      .split {
+        display: grid;
+        grid-template-columns: 1.05fr 0.95fr;
+        gap: 36px;
+        min-height: 0;
+        flex: 1;
+      }
+      .photo {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        border-radius: 16px;
+        border: 1px solid var(--line);
+      }
+      .card {
+        background: var(--card);
+        border: 1px solid var(--line);
+        border-radius: 16px;
+        box-shadow: var(--shadow);
+        padding: 28px 32px;
+      }
+      table {
+        width: 100%;
+        border-collapse: collapse;
+        background: var(--card);
+        border: 1px solid var(--line);
+        border-radius: 16px;
+        overflow: hidden;
+        box-shadow: var(--shadow);
+      }
+      th, td {
+        text-align: left;
+        padding: 16px 22px;
+        font-size: 32px;
+        line-height: 1.2;
+        border-bottom: 1px solid var(--line);
+        vertical-align: top;
+      }
+      th {
+        font-size: 28px;
+        letter-spacing: 0.06em;
+        text-transform: uppercase;
+        color: var(--muted);
+        font-weight: 600;
+        background: #fbf8f2;
+      }
+      tr:last-child td { border-bottom: 0; }
+      td.num, th.num { text-align: right; font-variant-numeric: tabular-nums; }
+      .pill {
+        display: inline-flex;
+        align-items: center;
+        border-radius: 999px;
+        padding: 6px 14px;
+        font-size: 28px;
+        font-weight: 600;
+        line-height: 1;
+      }
+      .sage { background: var(--sage-soft); color: var(--sage-strong); }
+      .calm { background: var(--calm-soft); color: var(--calm); }
+      .amber { background: var(--amber-soft); color: var(--amber); }
+      .stats {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 20px;
+      }
+      .stat b {
+        display: block;
+        font-family: "Source Serif 4", Georgia, serif;
+        font-size: 72px;
+        font-weight: 600;
+        letter-spacing: -0.03em;
+        font-variant-numeric: tabular-nums;
+        line-height: 1;
+      }
+      .stat span { display: block; margin-top: 8px; font-size: 28px; color: var(--muted); }
+      .kicker {
+        font-size: 28px;
+        letter-spacing: 0.08em;
+        text-transform: uppercase;
+        color: var(--sage);
+        font-weight: 700;
+      }
+      .beats { display: grid; grid-template-columns: repeat(3, 1fr); gap: 22px; }
+      .beats h3 {
+        margin: 12px 0 8px;
+        font-family: "Source Serif 4", Georgia, serif;
+        font-size: 40px;
+        font-weight: 600;
+      }
+      .beats p { margin: 0; font-size: 32px; line-height: 1.3; color: var(--muted); }
+      .index {
+        font-family: "Source Serif 4", Georgia, serif;
+        font-size: 42px;
+        color: var(--sage);
+      }
+      .buttons { display: flex; gap: 12px; margin-top: 18px; }
+      .btn {
+        min-height: 56px;
+        padding: 0 18px;
+        border-radius: 12px;
+        font-size: 28px;
+        font-weight: 600;
+        display: inline-flex;
+        align-items: center;
+      }
+      .btn.on { background: var(--sage); color: white; }
+      .btn.off { background: var(--card); color: var(--ink); border: 1px solid var(--line); }
+      .btn.miss { background: var(--amber-soft); color: var(--amber); border: 1px solid var(--amber); }
+      .row2 { display: grid; grid-template-columns: 1.2fr 0.8fr; gap: 24px; align-items: start; }
+    </style>
+  </head>
+  <body>
+    <script type="application/hyperframes-slideshow+json">
+      {
+        "slides": [
+          { "sceneId": "cover", "notes": "Open on the person, not the architecture. Care Loop is the chart plus the check-in." },
+          { "sceneId": "loop", "notes": "Three beats. The miss is the reason the call exists." },
+          { "sceneId": "surfaces", "notes": "Walk the table left to right. These are the screens in the patient app." },
+          { "sceneId": "today", "notes": "Demo chart for 15 Nov 2026. Evening metformin is still unrecorded until she marks it." },
+          { "sceneId": "readings", "notes": "Every reading keeps time, unit, and source. Nothing here is a diagnosis." },
+          { "sceneId": "medicines", "notes": "Not taken stays off the taken count. That miss queues the check-in." },
+          { "sceneId": "companion", "notes": "The companion calls about medicines, sugar, and the next visit. This deck does not place a call." },
+          { "sceneId": "sources", "notes": "Synthetic, manual, and device stay labeled. A fixture is not a live sensor." },
+          { "sceneId": "week", "notes": "Calendar holds visits and dose times. Reports are synthetic file names." },
+          { "sceneId": "system", "notes": "Postgres is the chart. Bolna places and understands the call. The app does not invent a dose." },
+          { "sceneId": "close", "notes": "End on the rule. Not medical advice." }
+        ]
+      }
+    </script>
+
+    <div id="stage" data-composition-id="root" data-start="0" data-duration="66" data-width="1920" data-height="1080">
+      <section id="scene-cover" class="scene-frame" data-hold data-composition-id="cover" data-start="0" data-duration="6" data-label="Cover">
+        <div class="pad">
+          <div class="top">
+            <div class="brand"><span class="mark" aria-hidden="true"><svg width="26" height="26" viewBox="0 0 24 24" fill="none"><path d="M4 12h3l2-5 4 10 2-5h5" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></span>Care Loop</div>
+            <span class="step">01</span>
+          </div>
+          <div class="split">
+            <div style="display:flex;flex-direction:column;justify-content:center;gap:24px">
+              <p class="kicker">Type 2 diabetes and hypertension</p>
+              <h1>The chart, then the check-in.</h1>
+              <p class="lede">Care Loop keeps the record in the patient’s language, and asks only when a dose or a reading is still missing.</p>
+            </div>
+            <img class="photo" src="assets/hero.jpg" alt="A woman at a kitchen table with a phone, a glucometer, and a blood pressure cuff" />
+          </div>
+          <p class="fine">Synthetic demo. Not medical advice.</p>
+        </div>
+      </section>
+
+      <section id="scene-loop" class="scene-frame" data-hold data-composition-id="loop" data-start="6" data-duration="6" data-label="The loop">
+        <div class="pad">
+          <div class="top"><div class="brand">Care Loop</div><span class="step">02</span></div>
+          <h2>One loop, three beats.</h2>
+          <div class="beats">
+            <article class="card"><div class="index">01</div><h3>Record</h3><p>Glucose, pressure, medicines, and the next visit live on the chart.</p></article>
+            <article class="card"><div class="index">02</div><h3>Mark</h3><p>She confirms a dose with I’ve taken it, or leaves it not taken.</p></article>
+            <article class="card"><div class="index">03</div><h3>Ask</h3><p>A miss is not counted as taken. That is what queues the check-in.</p></article>
+          </div>
+          <p class="fine">The call does not change a dose. The chart does.</p>
+        </div>
+      </section>
+
+      <section id="scene-surfaces" class="scene-frame" data-hold data-composition-id="surfaces" data-start="12" data-duration="6" data-label="Surfaces">
+        <div class="pad">
+          <div class="top"><div class="brand">Care Loop</div><span class="step">03</span></div>
+          <h2>What the app holds.</h2>
+          <table>
+            <thead>
+              <tr><th>Surface</th><th>What it holds</th><th>What the person does</th></tr>
+            </thead>
+            <tbody>
+              <tr><td>Today</td><td>Latest sugar, pressure, adherence, next visit</td><td>Reads the demo day</td></tr>
+              <tr><td>Glucose</td><td>mg/dL, time, context, source</td><td>Keeps fasting separate</td></tr>
+              <tr><td>Blood pressure</td><td>mmHg, time, source, optional pulse</td><td>Keeps home and clinic labeled</td></tr>
+              <tr><td>Medicines</td><td>Schedule and taken or not taken</td><td>A miss queues a check-in</td></tr>
+              <tr><td>Calendar</td><td>Visits, labs, and dose times</td><td>Sees the week</td></tr>
+              <tr><td>Companion</td><td>Language and queued check-ins</td><td>Takes the call</td></tr>
+              <tr><td>Data sources</td><td>Synthetic, manual, device</td><td>Sees where a row came from</td></tr>
+              <tr><td>Demo</td><td>Scripted scenarios for the clinic</td><td>The operator starts it</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </section>
+
+      <section id="scene-today" class="scene-frame" data-hold data-composition-id="today" data-start="18" data-duration="6" data-label="Today">
+        <div class="pad">
+          <div class="top"><div class="brand">Care Loop</div><span class="step">04</span></div>
+          <h2>Today, 15 Nov 2026.</h2>
+          <p class="lede">Demo chart. The evening metformin slot is still unrecorded.</p>
+          <div class="stats">
+            <article class="card stat"><span class="kicker">Glucose</span><b>125</b><span>mg/dL · fasting · glucometer · 7:20 am</span></article>
+            <article class="card stat"><span class="kicker" style="color:var(--calm)">Blood pressure</span><b>126/80</b><span>mmHg · pulse 71 · home monitor · 8:10 am</span></article>
+            <article class="card stat"><span class="kicker">Taken</span><b>2</b><span>of 3 scheduled doses</span></article>
+            <article class="card stat"><span class="kicker" style="color:var(--amber)">Unknown</span><b>1</b><span>Metformin 8:00 pm, not yet marked</span></article>
+          </div>
+        </div>
+      </section>
+
+      <section id="scene-readings" class="scene-frame" data-hold data-composition-id="readings" data-start="24" data-duration="6" data-label="Readings">
+        <div class="pad">
+          <div class="top"><div class="brand">Care Loop</div><span class="step">05</span></div>
+          <h2>Readings keep their origin.</h2>
+          <table>
+            <thead>
+              <tr><th>When</th><th>Measure</th><th class="num">Value</th><th>Context</th><th>Source</th></tr>
+            </thead>
+            <tbody>
+              <tr><td>15 Nov, 7:20 am</td><td>Glucose</td><td class="num">125 mg/dL</td><td>Fasting</td><td>Glucometer</td></tr>
+              <tr><td>15 Nov, 8:10 am</td><td>Blood pressure</td><td class="num">126/80</td><td>Pulse 71</td><td>Home monitor</td></tr>
+              <tr><td>14 Nov</td><td>Glucose</td><td class="num">—</td><td>Fasting</td><td>Not recorded</td></tr>
+              <tr><td>13 Nov, 8:12 am</td><td>Blood pressure</td><td class="num">136/88</td><td>Pulse 72</td><td>Home monitor</td></tr>
+            </tbody>
+          </table>
+          <p class="fine">A missing fasting day is a gap in the record. It is not a diagnosis.</p>
+        </div>
+      </section>
+
+      <section id="scene-medicines" class="scene-frame" data-hold data-composition-id="medicines" data-start="30" data-duration="6" data-label="Medicines">
+        <div class="pad">
+          <div class="top"><div class="brand">Care Loop</div><span class="step">06</span></div>
+          <h2>Mark the dose. Or don’t.</h2>
+          <div class="row2">
+            <table>
+              <thead><tr><th>Medicine</th><th>When</th><th>Status</th></tr></thead>
+              <tbody>
+                <tr><td>Metformin 500 mg</td><td>8:00 am</td><td><span class="pill sage">Taken</span></td></tr>
+                <tr><td>Telmisartan 40 mg</td><td>8:00 am</td><td><span class="pill sage">Taken</span></td></tr>
+                <tr><td>Metformin 500 mg</td><td>8:00 pm</td><td><span class="pill amber">Not taken</span></td></tr>
+              </tbody>
+            </table>
+            <article class="card">
+              <p class="kicker">8:00 pm · Metformin</p>
+              <p class="lede" style="font-size:36px;margin-top:16px">Not recorded as taken.</p>
+              <div class="buttons">
+                <span class="btn off">I’ve taken it</span>
+                <span class="btn miss">Not taken</span>
+              </div>
+              <p class="fine" style="margin-top:22px">Missed on the dashboard, so a check-in is queued.</p>
+            </article>
+          </div>
+        </div>
+      </section>
+
+      <section id="scene-companion" class="scene-frame" data-hold data-composition-id="companion" data-start="36" data-duration="6" data-label="Companion">
+        <div class="pad">
+          <div class="top"><div class="brand">Care Loop</div><span class="step">07</span></div>
+          <div class="split">
+            <div style="display:flex;flex-direction:column;gap:22px">
+              <h2>The call has a reason.</h2>
+              <p class="lede">CareLoop calls about medicines, sugar checks, and the next visit.</p>
+              <table>
+                <thead><tr><th>Language</th><th>Use</th></tr></thead>
+                <tbody>
+                  <tr><td>Hindi</td><td>Preferred for the demo profile</td></tr>
+                  <tr><td>English</td><td>Available for the check-in</td></tr>
+                  <tr><td>Tamil</td><td>Available for the check-in</td></tr>
+                  <tr><td>Kannada</td><td>Available for the check-in</td></tr>
+                </tbody>
+              </table>
+            </div>
+            <img class="photo" src="assets/call.jpg" alt="A woman speaking on a phone at home" />
+          </div>
+        </div>
+      </section>
+
+      <section id="scene-sources" class="scene-frame" data-hold data-composition-id="sources" data-start="42" data-duration="6" data-label="Data sources">
+        <div class="pad">
+          <div class="top"><div class="brand">Care Loop</div><span class="step">08</span></div>
+          <h2>Three origins. No blended rows.</h2>
+          <div class="row2">
+            <table>
+              <thead><tr><th>Label</th><th>Meaning</th></tr></thead>
+              <tbody>
+                <tr><td><span class="pill sage">Synthetic</span></td><td>Demo chart data, not a device</td></tr>
+                <tr><td><span class="pill amber">Manual</span></td><td>Entered by a person</td></tr>
+                <tr><td><span class="pill calm">Device</span></td><td>Reported by a connector such as Nightscout</td></tr>
+              </tbody>
+            </table>
+            <img class="photo" src="assets/devices.jpg" alt="A glucometer and a blood pressure monitor on linen" />
+          </div>
+          <p class="fine">If the API is down, the page shows a fixture preview. A fixture is not a live sensor.</p>
+        </div>
+      </section>
+
+      <section id="scene-week" class="scene-frame" data-hold data-composition-id="week" data-start="48" data-duration="6" data-label="Week and reports">
+        <div class="pad">
+          <div class="top"><div class="brand">Care Loop</div><span class="step">09</span></div>
+          <h2>The week, and the file drawer.</h2>
+          <div class="stats">
+            <article class="card">
+              <p class="kicker">Calendar</p>
+              <p class="lede" style="font-size:36px;margin-top:12px">Consultations, laboratory visits, and the dose times already on the schedule.</p>
+            </article>
+            <article class="card">
+              <p class="kicker">Reports</p>
+              <p class="lede" style="font-size:36px;margin-top:12px">Synthetic prescription and lab file names. Previews are not stored charts.</p>
+            </article>
+            <article class="card">
+              <p class="kicker">Profile</p>
+              <p class="lede" style="font-size:36px;margin-top:12px">Name, conditions, language, and the phones the call may use.</p>
+            </article>
+            <article class="card">
+              <p class="kicker">Clinic demo</p>
+              <p class="lede" style="font-size:36px;margin-top:12px">The operator starts a scripted scenario. The patient does not press start.</p>
+            </article>
+          </div>
+        </div>
+      </section>
+
+      <section id="scene-system" class="scene-frame" data-hold data-composition-id="system" data-start="54" data-duration="6" data-label="System">
+        <div class="pad">
+          <div class="top"><div class="brand">Care Loop</div><span class="step">10</span></div>
+          <h2>Who writes what.</h2>
+          <table>
+            <thead><tr><th>Piece</th><th>Job</th><th>Does not</th></tr></thead>
+            <tbody>
+              <tr><td>Patient app</td><td>Shows the chart and the dose marks</td><td>Invent a reading</td></tr>
+              <tr><td>Flask</td><td>Writes readings and the call context</td><td>Diagnose</td></tr>
+              <tr><td>Postgres</td><td>Holds the clinical record</td><td>Place the call</td></tr>
+              <tr><td>Intelligence</td><td>Names gaps and priorities</td><td>Change a medicine</td></tr>
+              <tr><td>Bolna</td><td>Places and understands the check-in</td><td>Become the chart</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </section>
+
+      <section id="scene-close" class="scene-frame" data-hold data-composition-id="close" data-start="60" data-duration="6" data-label="Close">
+        <div class="pad">
+          <div class="top"><div class="brand"><span class="mark" aria-hidden="true"><svg width="26" height="26" viewBox="0 0 24 24" fill="none"><path d="M4 12h3l2-5 4 10 2-5h5" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></span>Care Loop</div><span class="step">11</span></div>
+          <div style="flex:1;display:flex;flex-direction:column;justify-content:center;gap:28px">
+            <p class="kicker">The rule</p>
+            <h1>A miss is why we call.</h1>
+            <p class="lede">Taken is recorded. Not taken is missed. The dashboard leaves it out of the taken count, and the companion queues the check-in.</p>
+          </div>
+          <p class="fine">Synthetic demo data. Not medical advice. This deck does not place a phone call.</p>
+        </div>
+      </section>
+    </div>
+
+    <script>
+      (function () {
+        var scenes = [
+          { id: "scene-cover", start: 0, end: 6 },
+          { id: "scene-loop", start: 6, end: 12 },
+          { id: "scene-surfaces", start: 12, end: 18 },
+          { id: "scene-today", start: 18, end: 24 },
+          { id: "scene-readings", start: 24, end: 30 },
+          { id: "scene-medicines", start: 30, end: 36 },
+          { id: "scene-companion", start: 36, end: 42 },
+          { id: "scene-sources", start: 42, end: 48 },
+          { id: "scene-week", start: 48, end: 54 },
+          { id: "scene-system", start: 54, end: 60 },
+          { id: "scene-close", start: 60, end: 66 }
+        ];
+        function updateVisibility(t) {
+          for (var i = 0; i < scenes.length; i++) {
+            var s = scenes[i];
+            var el = document.getElementById(s.id);
+            if (!el) continue;
+            var active = t >= s.start && t < s.end;
+            el.style.opacity = active ? "1" : "0";
+            el.style.visibility = active ? "visible" : "hidden";
+            el.style.pointerEvents = active ? "auto" : "none";
+          }
+        }
+        window.__hfSetTime = updateVisibility;
+        updateVisibility(0);
+        var tl = gsap.timeline({ paused: true });
+        tl.to({}, { duration: 66 });
+        window.__timelines["root"] = tl;
+        tl.eventCallback("onUpdate", function () { updateVisibility(tl.time()); });
+        var manifest = scenes.map(function (s) {
+          return { id: s.id.replace("scene-", ""), start: s.start, duration: 6 };
+        });
+        function postTimeline() {
+          parent.postMessage({ source: "hf-preview", type: "timeline", durationInFrames: 66 * 30, scenes: manifest }, "*");
+        }
+        setTimeout(postTimeline, 300);
+      })();
+    </script>
+  </body>
+</html>

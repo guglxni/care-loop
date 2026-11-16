@@ -1,0 +1,10 @@
+SYNTHETIC PRESCRIPTION
+Not a real patient. Do not dispense. CareLoop parser fixture only.
+
+Prescriber: Dr. Fictional Example
+Written: 2026-09-15
+
+Medication: Metformin 500 mg twice daily
+Medication: Telmisartan 40 mg once daily
+
+Extracted medication text is not a confirmed prescription.

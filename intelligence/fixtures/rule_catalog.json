@@ -1,0 +1,63 @@
+{
+  "rules": [
+    {
+      "id": "glucose-fasting-review",
+      "metric": "blood_glucose",
+      "context": "fasting",
+      "unit": "mg/dL",
+      "comparator": "gte",
+      "value": 180,
+      "priority": "high",
+      "team": "endocrinology-review",
+      "approved": true,
+      "min_occurrences": null,
+      "window_hours": null
+    },
+    {
+      "id": "glucose-draft-unapproved",
+      "metric": "blood_glucose",
+      "context": null,
+      "unit": "mg/dL",
+      "comparator": "gte",
+      "value": 140,
+      "priority": "low",
+      "team": "endocrinology-review",
+      "approved": false,
+      "min_occurrences": null,
+      "window_hours": null
+    },
+    {
+      "id": "bp-systolic-review",
+      "metric": "systolic_blood_pressure",
+      "context": null,
+      "unit": "mmHg",
+      "comparator": "gte",
+      "value": 160,
+      "priority": "high",
+      "team": "hypertension-review",
+      "approved": true,
+      "min_occurrences": null,
+      "window_hours": null
+    },
+    {
+      "id": "adherence-repeat-gap",
+      "metric": "adherence_missed",
+      "context": null,
+      "unit": "count",
+      "comparator": "gte",
+      "value": 3,
+      "priority": "medium",
+      "team": "care-coordination",
+      "approved": true,
+      "min_occurrences": 3,
+      "window_hours": 168
+    }
+  ],
+  "coordination_defaults": {
+    "missing_measurement_priority": "low",
+    "unconfirmed_dose_priority": "low",
+    "missed_dose_priority": "medium",
+    "overdue_consultation_priority": "medium",
+    "pending_laboratory_priority": "medium"
+  }
+}

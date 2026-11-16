@@ -1,0 +1,10 @@
+SYNTHETIC LAB REPORT
+Not a real patient. CareLoop parser fixture only.
+
+Patient: Example Only
+Specimen: fictional whole blood
+
+HbA1c: 7.2 % on 2026-10-01
+Fasting glucose: 118 mg/dL on 2026-10-01
+
+No diagnosis is stated in this fixture.
