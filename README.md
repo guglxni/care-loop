@@ -22,17 +22,9 @@ Development data is synthetic. Meera Iyer and Ravi Sharma are fixtures. This rep
 
 ## The loop
 
-```mermaid
-flowchart LR
-  A["Record the chart"] --> B["Mark the dose"]
-  B --> C{"Taken?"}
-  C -->|Yes| D["Counted as taken"]
-  C -->|No| E["Missed on the dashboard"]
-  E --> F["Check-in queued"]
-  F --> G["Bolna call"]
-  G --> H["Flask writes only what was reported"]
-  H --> A
-```
+<p align="center">
+  <img src="docs/images/loop.png" alt="Flow from recording the chart, through marking a dose, to a Bolna call when it is missed." width="100%" />
+</p>
 
 | Beat | What happens | What does not happen |
 | --- | --- | --- |
@@ -78,27 +70,9 @@ Open the printed URL and press **P**. The same slides are a Remotion composition
 
 ## How the pieces fit
 
-```mermaid
-flowchart TB
-  subgraph client [Patient app]
-    WEB["React, Vite, TypeScript, Tailwind, Recharts"]
-  end
-  subgraph api [Care Loop API]
-    FLASK["Flask"]
-    INTEL["Intelligence: gaps, adherence, priorities"]
-  end
-  subgraph data [Chart]
-    PG["Postgres"]
-  end
-  subgraph voice [Voice]
-    BOLNA["Bolna graph agent"]
-  end
-  WEB -->|"HTTP /api/v1"| FLASK
-  FLASK --> PG
-  INTEL --> PG
-  FLASK -->|"allow-listed context packet"| BOLNA
-  BOLNA -->|"webhook and reported outcome"| FLASK
-```
+<p align="center">
+  <img src="docs/images/architecture.png" alt="Patient app talks to Flask. Flask writes Postgres, sends a context packet to Bolna, and receives the webhook." width="100%" />
+</p>
 
 | Piece | Job | Does not |
 | --- | --- | --- |

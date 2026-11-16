@@ -183,8 +183,8 @@ Checked with the Bolna MCP on 15 Nov 2026. No call was placed, and `get_executio
 
 | Check | What the MCP or the local process showed |
 | --- | --- |
-| Public origin | `https://echo-criterion-revolutionary-months.trycloudflare.com`, from `cloudflared tunnel --url http://127.0.0.1:5055`. A context GET through that origin returned 200. |
-| Webhook | `get_agent` shows `webhook_url` `https://echo-criterion-revolutionary-months.trycloudflare.com/api/v1/bolna/webhook`. It is not null. A localhost URL was not written. |
+| Public origin | `https://intelligent-nominations-der-fall.trycloudflare.com`, from `cloudflared tunnel --url http://127.0.0.1:5055`. A context GET through that origin returned 200. |
+| Webhook | `get_agent` shows `webhook_url` `https://intelligent-nominations-der-fall.trycloudflare.com/api/v1/bolna/webhook`. It is not null. A localhost URL was not written. |
 | Tools | `get_agent` and `get_graph_agent` both show `api_tools` non-null. Each tool uses `key` `custom_task`. `tools_params` carries `method`, `url`, and `param` with `%(name)s` on that public origin. |
 | Language | The existing transcriber `language` field is `en`. No synthesizer key was added. `hi` and `kn` stay in `user_data.preferred_language`. |
 | Phone | `get_user_info` has no phone field. `list_phone_numbers` failed because `GET /phone-numbers/all` returned an object with keys `bolna` and `user` instead of a list. `USER_PHONE_NUMBER` and `CARELOOP_USER_PHONE` were unset. |
@@ -197,7 +197,7 @@ The graph tools call the public context, medication, history, glucose, blood-pre
 
 The workflow agent node uses agent `8ad7201e-2fe5-4595-8a45-35ed60fb1fcd` and variables `purpose` and `patient_id`. On `call.status` `no_answer`, a time node waits until 08:00 Asia/Kolkata when the local hour is before 08:00 or 19:00 or later, and 15 minutes when it is already daytime. A retry node then runs the call once. The workflow was not run, including not against `+919840011223`.
 
-The quick tunnel has no uptime guarantee. When it stops, Bolna cannot reach the webhook or the tools until a new public origin is saved on the agent.
+The quick tunnel has no uptime guarantee. The 15 Nov hostname stopped resolving on 16 Nov. The origin above is the replacement, saved on the agent the same day. When this tunnel stops, Bolna cannot reach the webhook or the tools until a new public origin is saved.
 
 ## Working, with the evidence above
 
@@ -229,7 +229,7 @@ The intelligence package was not executed. Flask does not import it. `intelligen
 ## Known limitations
 
 - The webhook stores `extracted_data` on the voice-call row. It does not copy extracted readings into the chart. `test_webhook_is_idempotent_and_does_not_write_the_chart` posts a glucose value of 400 mg/dL and asserts the reading count is unchanged.
-- The public origin is a Cloudflare quick tunnel, `https://echo-criterion-revolutionary-months.trycloudflare.com`. It is not a permanent hostname. `get_agent` shows that origin on `webhook_url`, and `api_tools` is non-null. When the tunnel stops, those URLs stop working until a new public origin is saved. The graph agent is CareLoop AI Health Companion, `8ad7201e-2fe5-4595-8a45-35ed60fb1fcd`.
+- The public origin is a Cloudflare quick tunnel, `https://intelligent-nominations-der-fall.trycloudflare.com`. It is not a permanent hostname. `get_agent` shows that origin on `webhook_url`, and `api_tools` is non-null. When the tunnel stops, those URLs stop working until a new public origin is saved. The graph agent is CareLoop AI Health Companion, `8ad7201e-2fe5-4595-8a45-35ed60fb1fcd`.
 - There is no call token. A search of `backend/` found no `call_token` minting. The context route is an ordinary `GET` with the patient id in the path.
 - Bluetooth returns 501.
 - TimesFM is not installed (`runtime_status()` is `missing`).
@@ -242,21 +242,9 @@ The intelligence package was not executed. Flask does not import it. `intelligen
 
 ## Architecture
 
-```mermaid
-flowchart TB
-  web["React app\nVite, routes under web/src/pages"]
-  flask["Flask API\nprofile, readings, medicines, context, webhook"]
-  pg[("Postgres\nsynthetic Meera Iyer")]
-  intel["Intelligence package\nseparate from the Flask app factory"]
-  ingest["Ingest\nNightscout fixture, BP CSV, documents, forecast"]
-  bolna["Bolna\ngraph agent, user_data, custom_task, dispositions, webhook"]
-
-  web -->|"Data sources: http://127.0.0.1:5000"| flask
-  flask --> pg
-  ingest --> flask
-  intel -.-> pg
-  bolna -->|"public tunnel webhook and api_tools\nno outbound execution yet"| flask
-```
+<p align="center">
+  <img src="docs/images/demo-architecture.png" alt="React app, Flask, ingest, Postgres, intelligence, and Bolna." width="100%" />
+</p>
 
 The other React screens read `web/src/data/demo.ts`.
 
